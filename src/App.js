@@ -1,55 +1,59 @@
 import React, { Component } from 'react';
 import Weather from './components/Weather/Weather'
 import Searchbar from './components/Searchbar/Searchbar';
-import Day from './components/Day/Day';
 import './_app.scss';
 import key from './config/api_key'
+import FindCity from './components/FindCity/FindCity';
 
 class App extends Component {
   
   state = {
+    searchBarValue: '',
     cityName: '',
     weathers: false,
     forecasts: false
   }
 
-  handleSearch = e => {
-    this.setState({
-      cityName: e.target.value
-    })
+  handleSearch = async (e) => {
+    await this.setState({searchBarValue: e.target.value})
+    await this.findCity()
+  }
+
+  findCity = async () => {
+    const {searchBarValue} = this.state
+
+    const req = await fetch(`https://geo.api.gouv.fr/communes?nom=${searchBarValue}&fields=codesPostaux&boost=population&limit=5`)
+    const res = await req.json()
+
+    this.setState({cityName: res})
   }
 
   searchCity = async () => {
 
-    const {cityName} = this.state
+    const {searchBarValue} = this.state
 
-    const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${key}&lang=fr&units=metric`)
+    const req = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchBarValue}&appid=${key}&lang=fr&units=metric`)
     const weathers = await req.json()
 
-    this.setState({
-      weathers
-    })
-
-    // const req2 = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${this.state.weathers.coord.lat}&lon=${this.state.weathers.coord.lon}&exclude=current,minutely,hourly&appid=c5698bb001c73d6085d451bb2a1d8de3&lang=fr&units=metric`)
-    // const forecasts = await req2.json()
-
-    // const treatement = forecasts.daily.slice(1,6)
-    
-    // this.setState({
-    //   forecasts: treatement
-    // })
+    this.setState({weathers})
   }
   
   render() {
-    const {cityName, weathers, forecasts} = this.state
+    const {searchBarValue, weathers, cityName} = this.state
 
     return(
       <div>
         <Searchbar
           handleSearch={this.handleSearch}
-          cityName={cityName}
+          cityName={searchBarValue}
           searchCity={this.searchCity}
         />
+        {
+          cityName === '' ? '' :
+          <FindCity
+            cities={cityName}
+          />
+        }
         {
           weathers === false ? '' : 
           <Weather 
@@ -61,18 +65,6 @@ class App extends Component {
             humidity={weathers.main.humidity}
           />
         }
-        <section className="day">
-          {
-            forecasts === false ? '' : forecasts.map( day =>
-              <Day 
-                key={Math.random()}
-                date={day.dt}
-                tempMax={day.temp.max}
-                tempMin={day.temp.min}
-              />
-            )
-          }
-        </section>
       </div>
     )
   }
