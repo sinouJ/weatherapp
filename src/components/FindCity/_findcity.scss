@@ -1,9 +1,26 @@
 @import '../variables';
 
 .findCity {
-    background-color: red;
-    
+    background-color: white;
+    border: 1px solid $darkgray;
+    padding: 0;
+    position: absolute;
+    width: calc(100% - 16px);
+
+    &[toggle="false"] {
+        display: none;
+    }
+
+    &[toggle="true"] {
+        display: block;
+    }
+
     li {
-        color: blue;
+        list-style-type: none;
+        padding: 7px 10px;
+
+        &:hover {
+            background-color: #e7e7e7;
+        }
     }
 }

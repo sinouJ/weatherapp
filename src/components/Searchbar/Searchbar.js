@@ -1,7 +1,7 @@
 import React from 'react'
 import './_searchbar.scss'
 
-const Searchbar = ({handleSearch, cityName, searchCity}) => {
+const Searchbar = ({handleSearch, cityName, displayWeather}) => {
     return(
         <div className="searchbar">
             <input 
@@ -9,7 +9,7 @@ const Searchbar = ({handleSearch, cityName, searchCity}) => {
                 value={cityName}
                 placeholder="Type city here..."
             />
-            <button onClick={searchCity}>Go</button>
+            <button onClick={displayWeather}>Go</button>
         </div>
     )
 }

@@ -17,6 +17,12 @@ class App extends Component {
   handleSearch = async (e) => {
     await this.setState({searchBarValue: e.target.value})
     await this.findCity()
+    await this.toggleDropdown(true)
+  }
+
+  toggleDropdown = (forceTrueToggle) => {
+    const dropdown = document.querySelector('.findCity')
+    forceTrueToggle ? dropdown.setAttribute('toggle', true) : dropdown.setAttribute('toggle', !dropdown.getAttribute('toggle'))
   }
 
   findCity = async () => {
@@ -25,10 +31,10 @@ class App extends Component {
     const req = await fetch(`https://geo.api.gouv.fr/communes?nom=${searchBarValue}&fields=codesPostaux&boost=population&limit=5`)
     const res = await req.json()
 
-    this.setState({cityName: res})
+    await this.setState({cityName: res})
   }
 
-  searchCity = async () => {
+  displayWeather = async () => {
 
     const {searchBarValue} = this.state
 
@@ -36,6 +42,16 @@ class App extends Component {
     const weathers = await req.json()
 
     this.setState({weathers})
+  }
+
+  selectCity = async (e) => {
+    let searchValue = document.querySelector('.searchbar input')
+    const menuValue = e.target.getAttribute('value')
+    
+    searchValue.value = menuValue
+    await this.setState({searchBarValue: menuValue})
+    await this.displayWeather()
+    await this.toggleDropdown()
   }
   
   render() {
@@ -46,12 +62,13 @@ class App extends Component {
         <Searchbar
           handleSearch={this.handleSearch}
           cityName={searchBarValue}
-          searchCity={this.searchCity}
+          displayWeather={this.displayWeather}
         />
         {
           cityName === '' ? '' :
           <FindCity
             cities={cityName}
+            selectCity={this.selectCity}
           />
         }
         {
